@@ -1,24 +1,14 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 
-const list = [
-  {
-    title: 'React',
-    url: 'https://facebook.github.io/react/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://github.com/reactjs/redux',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];
+const DEFAULT_QUERY = 'javascript';
+
+const PATH_BASE = 'https://hn.algolia.com/api/v1';
+const PATH_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
+
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 
 // ES5
 // function isSearched(searchTerm) {
@@ -32,7 +22,7 @@ const isSearched = searchTerm => item =>
   item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
 // ES6 Class Component
-  class App extends Component {
+class App extends Component {
   // The constructor instantiates the class with all its properties.
   // The business logic of class methods should be defined outside
   // of the constructor and then bound to the constructor.
@@ -40,8 +30,8 @@ const isSearched = searchTerm => item =>
     super(props);
 
     this.state = {
-      list,
-      searchTerm: '',
+      result: null,
+      searchTerm: DEFAULT_QUERY,
     }
 
     // Binds class method to class constructor
@@ -54,17 +44,38 @@ const isSearched = searchTerm => item =>
     // You can evaluate each item in the list based on a filter condition.
     // If the evaluation for an item is true, the item stays in the list.
     // Otherwise it will be filtered from the list.
-    const updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+    const updatedHits = this.state.result.hits.filter(isNotId);
+    this.setState({
+      result: {...this.state.result, hits: updatedHits }
+    });
   }
 
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
   }
 
+  async componentDidMount() {
+    this.setState({ isLoading: true });
+
+    try {
+      const result = await axios.get(url);
+
+      this.setState({
+        result: result.data,
+        isLoading: false
+      })
+
+    } catch (error) {
+      this.setState({
+        error,
+        isLoading: false
+      });
+    }
+  }
+
   render() {
     // Destructure local state object
-    const { searchTerm, list } = this.state;
+    const { searchTerm, result } = this.state;
     return (
       <div className="page">
         <h2 className="App">Hacker News</h2>
@@ -76,11 +87,13 @@ const isSearched = searchTerm => item =>
             Search
           </Search>
         </div>
-        <Table
-          list={list}
-          pattern={searchTerm}
-          onDismiss={this.onDismiss}
-        />
+        { result &&
+          <Table
+            list={result.hits}
+            pattern={searchTerm}
+            onDismiss={this.onDismiss}
+          />
+        }
       </div>
     );
   }
@@ -112,13 +125,13 @@ const Table = ({ list, pattern, onDismiss }) =>
     */}
     {list.filter(isSearched(pattern)).map(item =>
       <div key={item.objectID} className="table-row">
-        <span>
+        <span style={{ width: '40%' }}>
           <a href={item.url}>{item.title}</a>
         </span>
-        <span>{item.author}</span>
-        <span>{item.num_comments}</span>
-        <span>{item.points}</span>
-        <span>
+        <span style={{ width: '30%' }}>{item.author}</span>
+        <span style={{ width: '10%' }}>{item.num_comments}</span>
+        <span style={{ width: '10%' }}>{item.points}</span>
+        <span style={{ width: '10%' }}>
           <Button
             onClick={() => onDismiss(item.objectID)}
             className="button-inline"
