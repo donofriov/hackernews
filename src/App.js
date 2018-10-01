@@ -175,6 +175,7 @@ const Search = ({ value, onChange, onSubmit, children }) =>
     <form onSubmit={onSubmit}>
       <input
         type="text"
+        placeholder="What are you looking for?"
         // Forces this to be a controlled component
         // The unidirectional data flow loop for the input field is self-contained now.
         // The internal component state is the single source of truth for the input field.
