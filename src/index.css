@@ -1,11 +1,12 @@
 body {
-  color: #222;
-  background: #f4f4f4;
+  color: #C7523E;
+  background: #0B434D;
   font: 400 14px CoreSans, Arial,sans-serif;
 }
 
 a{
   color: #222;
+  font-size: 1.2em;
 }
 
 a:hover {
@@ -24,14 +25,16 @@ input {
   outline: none;
   margin-right: 10px;
   border: 1px solid #dddddd;
+  width: 30em;
+  line-height: 1.5em;
 }
 
 button {
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #dddddd;
-  background: transparent;
-  color: #808080;
+  background: #C7523E;
+  color: #fff;
   cursor: pointer;
 }
 
